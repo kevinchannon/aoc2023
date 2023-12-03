@@ -7,7 +7,7 @@ pub enum Error {
     ParseLineFailed
 }
 
-pub fn part_1() -> Result<u32, Error> {
+pub fn get_calibration_factor() -> Result<u32, Error> {
     let lines = get_lines_from_file(Path::new("inputs/day1_part1.txt"))?;
     lines.iter().map(int_from_line).sum()
 }

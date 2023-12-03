@@ -1,7 +1,7 @@
 mod day_1;
 
 fn main() {
-    let result_1_1 = day_1::part_1();
-    println!("Calibration value sum: {:?}", result_1_1);
+    let calibration_factor = day_1::get_calibration_factor();
+    println!("Calibration factor: {:?}", calibration_factor);
 }
 
