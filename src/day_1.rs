@@ -24,7 +24,44 @@ fn get_lines_from_file(path: &Path) -> Result<Vec<String>, Error> {
 }
 
 fn words_to_digit_chars(s: &String) -> String {
-    s.replace("one", "1")
+    let numbers = [
+        "zero", "one", "two", "three", "four",
+        "five", "six", "seven", "eight", "nine"
+    ];
+
+    let mut out = s.clone();
+
+    for n in numbers {
+        if let Some(first_num) = out.find(n) {
+            out = replace_number_word_at(out, first_num);
+            break;
+        }
+    }
+
+    for n in numbers {
+        if let Some(last_num) = s.rfind(n) {
+            out = replace_number_word_at(out, last_num);
+            break;
+        }
+    }
+
+    out
+}
+
+fn replace_number_word_at(s: String, idx: usize) -> String {
+    match &s[idx..] {
+        sub if sub.starts_with("zero") => s.replace("zero", "0"),
+        sub if sub.starts_with("one") => s.replace("one", "1"),
+        sub if sub.starts_with("two") => s.replace("two", "2"),
+        sub if sub.starts_with("three") => s.replace("three", "3"),
+        sub if sub.starts_with("four") => s.replace("four", "4"),
+        sub if sub.starts_with("five") => s.replace("five", "5"),
+        sub if sub.starts_with("six") => s.replace("six", "6"),
+        sub if sub.starts_with("seven") => s.replace("seven", "7"),
+        sub if sub.starts_with("eight") => s.replace("eight", "8"),
+        sub if sub.starts_with("nine") => s.replace("nine", "9"),
+        _ => s
+    }
 }
 
 fn int_from_line(line: String) -> Result<u32, Error> {
@@ -85,7 +122,32 @@ mod tests {
     }
 
     #[test]
+    fn lines_with_word_number_examples() {
+        assert_eq!(Ok(29), int_from_line(words_to_digit_chars(&String::from("two1nine"))));
+        assert_eq!(Ok(83), int_from_line(words_to_digit_chars(&String::from("eightwothree"))));
+        assert_eq!(Ok(13), int_from_line(words_to_digit_chars(&String::from("abcone2threexyz"))));
+        assert_eq!(Ok(24), int_from_line(words_to_digit_chars(&String::from("xtwone3four"))));
+        assert_eq!(Ok(42), int_from_line(words_to_digit_chars(&String::from("4nineeightseven2"))));
+        assert_eq!(Ok(14), int_from_line(words_to_digit_chars(&String::from("zoneight234"))));
+        assert_eq!(Ok( 7), int_from_line(words_to_digit_chars(&String::from("7pqrstsixteen"))));
+    }
+
+    #[test]
     fn words_to_digit_chars_replaces_digit() {
+        assert_eq!("0".to_string(), words_to_digit_chars(&"zero".to_string()));
         assert_eq!("1".to_string(), words_to_digit_chars(&"one".to_string()));
+        assert_eq!("2".to_string(), words_to_digit_chars(&"two".to_string()));
+        assert_eq!("3".to_string(), words_to_digit_chars(&"three".to_string()));
+        assert_eq!("4".to_string(), words_to_digit_chars(&"four".to_string()));
+        assert_eq!("5".to_string(), words_to_digit_chars(&"five".to_string()));
+        assert_eq!("6".to_string(), words_to_digit_chars(&"six".to_string()));
+        assert_eq!("7".to_string(), words_to_digit_chars(&"seven".to_string()));
+        assert_eq!("8".to_string(), words_to_digit_chars(&"eight".to_string()));
+        assert_eq!("9".to_string(), words_to_digit_chars(&"nine".to_string()));
+    }
+
+    #[test]
+    fn words_to_digit_chars_replaces_multiple_digits() {
+        assert_eq!("823".to_string(), words_to_digit_chars(&"eighttwothree".to_string()));
     }
 }
