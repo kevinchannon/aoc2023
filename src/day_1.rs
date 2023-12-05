@@ -31,17 +31,16 @@ fn words_to_digit_chars(s: &String) -> String {
 
     let mut out = s.clone();
 
-    for n in numbers {
-        if let Some(first_num) = out.find(n) {
-            out = replace_number_word_at(out, first_num);
+    for idx in 0..out.len() {
+        if idx >= out.len() {
             break;
         }
-    }
 
-    for n in numbers {
-        if let Some(last_num) = s.rfind(n) {
-            out = replace_number_word_at(out, last_num);
-            break;
+        for n in numbers {
+            if out[idx..].starts_with(n) {
+                out = replace_number_word_at(out, idx);
+                break;
+            }
         }
     }
 
@@ -129,7 +128,7 @@ mod tests {
         assert_eq!(Ok(24), int_from_line(words_to_digit_chars(&String::from("xtwone3four"))));
         assert_eq!(Ok(42), int_from_line(words_to_digit_chars(&String::from("4nineeightseven2"))));
         assert_eq!(Ok(14), int_from_line(words_to_digit_chars(&String::from("zoneight234"))));
-        assert_eq!(Ok( 7), int_from_line(words_to_digit_chars(&String::from("7pqrstsixteen"))));
+        assert_eq!(Ok(76), int_from_line(words_to_digit_chars(&String::from("7pqrstsixteen"))));
     }
 
     #[test]
@@ -149,5 +148,18 @@ mod tests {
     #[test]
     fn words_to_digit_chars_replaces_multiple_digits() {
         assert_eq!("823".to_string(), words_to_digit_chars(&"eighttwothree".to_string()));
+    }
+
+    #[test]
+    fn words_to_digit_chars_overlapping_words() {
+        assert_eq!("0ne".to_string(), words_to_digit_chars(&String::from("zerone")));
+        assert_eq!("1ight".to_string(), words_to_digit_chars(&String::from("oneight")));
+        assert_eq!("2ne".to_string(), words_to_digit_chars(&String::from("twone")));
+        assert_eq!("3ight".to_string(), words_to_digit_chars(&String::from("threeight")));
+        assert_eq!("5ight".to_string(), words_to_digit_chars(&String::from("fiveight")));
+        assert_eq!("7ine".to_string(), words_to_digit_chars(&String::from("sevenine")));
+        assert_eq!("8wo".to_string(), words_to_digit_chars(&String::from("eightwo")));
+        assert_eq!("8hree".to_string(), words_to_digit_chars(&String::from("eighthree")));
+        assert_eq!("9ight".to_string(), words_to_digit_chars(&String::from("nineight")));
     }
 }
