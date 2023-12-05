@@ -25,42 +25,23 @@ fn get_lines_from_file(path: &Path) -> Result<Vec<String>, Error> {
 
 fn words_to_digit_chars(s: &String) -> String {
     let numbers = [
-        "zero", "one", "two", "three", "four",
-        "five", "six", "seven", "eight", "nine"
+        ("zero", "0"), ("one", "1"), ("two", "2"), ("three", "3"), ("four", "4"),
+        ("five", "5"), ("six", "6"), ("seven", "7"), ("eight", "8"), ("nine", "9"),
+        ("0", "0"), ("1", "1"), ("2", "2"), ("3", "3"), ("4", "4"),
+        ("5", "5"), ("6", "6"), ("7", "7"), ("8", "8"), ("9", "9")
     ];
 
-    let mut out = s.clone();
+    let mut out = String::new();
 
-    for idx in 0..out.len() {
-        if idx >= out.len() {
-            break;
-        }
-
+    for idx in 0..s.len() {
         for n in numbers {
-            if out[idx..].starts_with(n) {
-                out = replace_number_word_at(out, idx);
-                break;
+            if s[idx..].starts_with(n.0) {
+                out += n.1;
             }
         }
     }
 
     out
-}
-
-fn replace_number_word_at(s: String, idx: usize) -> String {
-    match &s[idx..] {
-        sub if sub.starts_with("zero") => s.replace("zero", "0"),
-        sub if sub.starts_with("one") => s.replace("one", "1"),
-        sub if sub.starts_with("two") => s.replace("two", "2"),
-        sub if sub.starts_with("three") => s.replace("three", "3"),
-        sub if sub.starts_with("four") => s.replace("four", "4"),
-        sub if sub.starts_with("five") => s.replace("five", "5"),
-        sub if sub.starts_with("six") => s.replace("six", "6"),
-        sub if sub.starts_with("seven") => s.replace("seven", "7"),
-        sub if sub.starts_with("eight") => s.replace("eight", "8"),
-        sub if sub.starts_with("nine") => s.replace("nine", "9"),
-        _ => s
-    }
 }
 
 fn int_from_line(line: String) -> Result<u32, Error> {
@@ -152,14 +133,14 @@ mod tests {
 
     #[test]
     fn words_to_digit_chars_overlapping_words() {
-        assert_eq!("0ne".to_string(), words_to_digit_chars(&String::from("zerone")));
-        assert_eq!("1ight".to_string(), words_to_digit_chars(&String::from("oneight")));
-        assert_eq!("2ne".to_string(), words_to_digit_chars(&String::from("twone")));
-        assert_eq!("3ight".to_string(), words_to_digit_chars(&String::from("threeight")));
-        assert_eq!("5ight".to_string(), words_to_digit_chars(&String::from("fiveight")));
-        assert_eq!("7ine".to_string(), words_to_digit_chars(&String::from("sevenine")));
-        assert_eq!("8wo".to_string(), words_to_digit_chars(&String::from("eightwo")));
-        assert_eq!("8hree".to_string(), words_to_digit_chars(&String::from("eighthree")));
-        assert_eq!("9ight".to_string(), words_to_digit_chars(&String::from("nineight")));
+        assert_eq!("01".to_string(), words_to_digit_chars(&String::from("zerone")));
+        assert_eq!("18".to_string(), words_to_digit_chars(&String::from("oneight")));
+        assert_eq!("21".to_string(), words_to_digit_chars(&String::from("twone")));
+        assert_eq!("38".to_string(), words_to_digit_chars(&String::from("threeight")));
+        assert_eq!("58".to_string(), words_to_digit_chars(&String::from("fiveight")));
+        assert_eq!("79".to_string(), words_to_digit_chars(&String::from("sevenine")));
+        assert_eq!("82".to_string(), words_to_digit_chars(&String::from("eightwo")));
+        assert_eq!("83".to_string(), words_to_digit_chars(&String::from("eighthree")));
+        assert_eq!("98".to_string(), words_to_digit_chars(&String::from("nineight")));
     }
 }
