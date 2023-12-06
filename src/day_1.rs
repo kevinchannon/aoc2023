@@ -8,7 +8,7 @@ pub enum Error {
 }
 
 pub fn get_calibration_factor() -> Result<u32, Error> {
-    get_lines_from_file(Path::new("../inputs/day1.txt"))?
+    get_lines_from_file(Path::new("inputs/day1.txt"))?
         .iter()
         .map(words_to_digit_chars)
         .map(int_from_line)

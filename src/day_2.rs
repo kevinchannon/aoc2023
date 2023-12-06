@@ -1,10 +1,22 @@
+use std::fs::read_to_string;
+use std::path::Path;
+
 #[derive(PartialEq, Debug)]
 pub enum Error {
-    FailedToParseId
+    FailedToParseId,
+    InvalidInputPaths
 }
 
-pub fn get_id_sum() -> u32 {
-    0
+pub fn get_id_sum() -> Result<u32, Error> {
+    get_id_sum_from_lines(get_lines_from_file(Path::new("inputs/day2.txt"))?)
+}
+
+fn get_lines_from_file(path: &Path) -> Result<Vec<String>, Error> {
+    if let Ok(content) = read_to_string(path.to_str().ok_or(Error::InvalidInputPaths)?) {
+        return Ok(content.lines().map(String::from).collect());
+    }
+
+    Err(Error::InvalidInputPaths)
 }
 
 fn get_id_sum_from_lines(lines: Vec<String>) -> Result<u32, Error> {
