@@ -4,7 +4,9 @@ use std::path::Path;
 #[derive(PartialEq, Debug)]
 pub enum Error {
     FailedToParseId,
-    InvalidInputPaths
+    InvalidInputPaths,
+    InvalidGame,
+    InvalidDraw
 }
 
 pub fn get_id_sum() -> Result<u32, Error> {
@@ -20,7 +22,7 @@ fn get_lines_from_file(path: &Path) -> Result<Vec<String>, Error> {
 }
 
 fn get_id_sum_from_lines(lines: Vec<String>) -> Result<u32, Error> {
-    lines.iter().map(id_from_line).sum()
+    lines.iter().filter(|l| match valid_game(&l) { Ok(true) => true, _ => false} ).map(id_from_line).sum()
 }
 
 fn id_from_line(line: &String) -> Result<u32, Error> {
@@ -28,6 +30,37 @@ fn id_from_line(line: &String) -> Result<u32, Error> {
     let id_end = line.find(":").ok_or(Error::FailedToParseId)?;
 
     line[id_start..id_end].parse::<u32>().or(Err(Error::FailedToParseId))
+}
+
+fn valid_game(line: &&String) -> Result<bool, Error> {
+    if let Some(pos) = line.find(":") {
+        let result = line[pos + 1..].split(";")
+            .fold(true, |x, d| x && match draw_is_valid(d) {
+                Ok(true) => true,
+                _ => false
+            });
+
+        return Ok(result);
+    };
+
+    Err(Error::InvalidGame)
+}
+
+fn draw_is_valid(draw: &str) -> Result<bool, Error> {
+    for colour_count in draw.trim().split(",") {
+        let parts = colour_count.split(' ').collect::<Vec<&str>>();
+        let count = parts[0].parse::<u32>().or(Err(Error::InvalidDraw))?;
+        let colour = parts[1];
+
+        return match colour {
+            "red" if count <= 12 => Ok(true),
+            "green" if count <= 13 => Ok(true),
+            "blue" if count <= 14 => Ok(true),
+            _ => Ok(false)
+        };
+    }
+
+    Ok(false)
 }
 
 #[cfg(test)]
@@ -44,5 +77,42 @@ mod tests {
         let lines = vec![String::from("Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green"),
                          String::from("Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue")];
         assert_eq!(Ok(3), get_id_sum_from_lines(lines));
+    }
+
+    #[test]
+    fn draw_is_valid_returns_true_for_valid_draw() {
+        assert_eq!(Ok(true), draw_is_valid(" 12 red"));
+        assert_eq!(Ok(true), draw_is_valid(" 13 green"));
+        assert_eq!(Ok(true), draw_is_valid(" 14 blue"));
+        assert_eq!(Ok(true), draw_is_valid(" 12 red, 13 green, 14 blue"));
+    }
+
+    #[test]
+    fn draw_is_valid_returns_false_for_invalid_draw() {
+        assert_eq!(Ok(false), draw_is_valid(" 13 red"));
+        assert_eq!(Ok(false), draw_is_valid(" 14 green"));
+        assert_eq!(Ok(false), draw_is_valid(" 15 blue"));
+        assert_eq!(Ok(false), draw_is_valid(" 13 red, 13 green, 14 blue"));
+        assert_eq!(Ok(false), draw_is_valid(" 13 red, 14 green, 14 blue"));
+        assert_eq!(Ok(false), draw_is_valid(" 13 red, 13 green, 15 blue"));
+    }
+
+    #[test]
+    fn valid_game_is_false_for_invalid_game() {
+        let game = String::from("Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red");
+        assert_eq!(Ok(false), valid_game(&&game));
+    }
+
+    #[test]
+    fn example_games_work() {
+        let lines = vec![
+            String::from("Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green"),
+            String::from("Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue"),
+            String::from("Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red"),
+            String::from("Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red"),
+            String::from("Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green")
+        ];
+
+        assert_eq!(Ok(8), get_id_sum_from_lines(lines));
     }
 }
