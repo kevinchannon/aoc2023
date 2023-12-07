@@ -9,6 +9,34 @@ pub enum Error {
     InvalidDraw
 }
 
+#[derive(PartialEq, Debug)]
+struct Draw {
+    red: u32,
+    green: u32,
+    blue: u32
+}
+
+impl Draw {
+    pub fn from_string(s: &str) -> Result<Self, Error> {
+        let mut out = Self{red: 0, green: 0, blue: 0};
+
+        for colour_count in s.trim().split(",") {
+            let parts = colour_count.trim().split(' ').collect::<Vec<&str>>();
+            let count = parts[0].parse::<u32>().or(Err(Error::InvalidDraw))?;
+            let colour = parts[1];
+
+            match colour {
+                "red" => out.red = count,
+                "green" => out.green = count,
+                "blue" => out.blue = count,
+                _ => return Err(Error::InvalidDraw)
+            };
+        }
+
+        return Ok(out);
+    }
+}
+
 pub fn get_id_sum() -> Result<u32, Error> {
     get_id_sum_from_lines(get_lines_from_file(Path::new("inputs/day2.txt"))?)
 }
@@ -118,5 +146,15 @@ mod tests {
         ];
 
         assert_eq!(Ok(8), get_id_sum_from_lines(lines));
+    }
+
+    #[test]
+    fn create_draw_from_string() {
+        assert_eq!(Ok(Draw{red: 1, green: 2, blue: 3}), Draw::from_string(" 2 green, 3 blue, 1 red"));
+    }
+
+    #[test]
+    fn create_draw_from_string_fails_for_invalid_colour() {
+        assert_eq!(Err(Error::InvalidDraw), Draw::from_string(" 2 green, 3 yellow, 1 red"));
     }
 }
