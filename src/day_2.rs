@@ -21,13 +21,7 @@ impl Draw {
         let mut out = Self{red: 0, green: 0, blue: 0};
 
         for colour_count in s.trim().split(",") {
-            let parts = colour_count.trim().split(' ').collect::<Vec<&str>>();
-            if parts.len() != 2 {
-                return Err(Error::InvalidDraw);
-            }
-
-            let count = parts[0].parse::<u32>().or(Err(Error::InvalidDraw))?;
-            let colour = parts[1];
+            let (count, colour) = Draw::parse_for_count_and_colour(colour_count)?;
 
             match colour {
                 "red"   => out.red   = count,
@@ -38,6 +32,15 @@ impl Draw {
         }
 
         return Ok(out);
+    }
+
+    fn parse_for_count_and_colour(s: &str) -> Result<(u32, &str), Error> {
+        let parts = s.trim().split(' ').collect::<Vec<&str>>();
+        if parts.len() != 2 {
+            return Err(Error::InvalidDraw);
+        }
+
+        Ok((parts[0].parse::<u32>().or(Err(Error::InvalidDraw))?, parts[1]))
     }
 }
 
