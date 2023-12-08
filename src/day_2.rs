@@ -22,13 +22,17 @@ impl Draw {
 
         for colour_count in s.trim().split(",") {
             let parts = colour_count.trim().split(' ').collect::<Vec<&str>>();
+            if parts.len() != 2 {
+                return Err(Error::InvalidDraw);
+            }
+
             let count = parts[0].parse::<u32>().or(Err(Error::InvalidDraw))?;
             let colour = parts[1];
 
             match colour {
-                "red" => out.red = count,
+                "red"   => out.red   = count,
                 "green" => out.green = count,
-                "blue" => out.blue = count,
+                "blue"  => out.blue  = count,
                 _ => return Err(Error::InvalidDraw)
             };
         }
@@ -156,5 +160,20 @@ mod tests {
     #[test]
     fn create_draw_from_string_fails_for_invalid_colour() {
         assert_eq!(Err(Error::InvalidDraw), Draw::from_string(" 2 green, 3 yellow, 1 red"));
+    }
+
+    #[test]
+    fn create_draw_from_string_fails_for_invalid_value() {
+        assert_eq!(Err(Error::InvalidDraw), Draw::from_string(" 2 green, 3 blue, ? red"));
+    }
+
+    #[test]
+    fn create_draw_from_string_fails_if_there_are_too_few_parts() {
+        assert_eq!(Err(Error::InvalidDraw), Draw::from_string(" 2 , 3 yellow, 1 red"));
+    }
+
+    #[test]
+    fn create_draw_from_string_fails_if_there_are_too_many_parts() {
+        assert_eq!(Err(Error::InvalidDraw), Draw::from_string(" 2 green X, 3 yellow, 1 red"));
     }
 }
