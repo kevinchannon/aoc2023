@@ -62,7 +62,7 @@ impl Game {
     }
 
     pub fn power(self: &Self) -> u32 {
-        let accumulate_min_colour_values = |mins, d| {
+        let accumulate_min_colour_values = |mins: [u32; 3], d: &Draw| {
             [std::cmp::max(mins[0], d.red),
                 std::cmp::max(mins[1], d.green),
                 std::cmp::max(mins[2], d.blue)]
@@ -212,5 +212,14 @@ mod tests {
 
         let games = games_from_lines(&lines);
         assert_eq!(Err(Error::InvalidDraw), games);
+    }
+
+    #[test]
+    fn part_1_result_is_correct() {
+        assert_eq!(Ok(2237), get_id_sum());
+    }
+    #[test]
+    fn part_2_result_is_correct() {
+        assert_eq!(Ok(66681), get_total_power());
     }
 }
