@@ -79,27 +79,13 @@ fn valid_game(line: &&String) -> Result<bool, Error> {
     }
 }
 
-fn draw_is_valid(draw: &str) -> Result<bool, Error> {
-    for colour_count in draw.trim().split(",") {
-        let parts = colour_count.trim().split(' ').collect::<Vec<&str>>();
-        let count = parts[0].parse::<u32>().or(Err(Error::InvalidDraw))?;
-        let colour = parts[1];
-
-        if !colour_count_is_valid(colour, count) {
-            return Ok(false);
-        }
+fn draw_is_valid(s: &str) -> Result<bool, Error> {
+    let draw = Draw::from_string(s)?;
+    if draw.red > 12 || draw.green > 13 || draw.blue > 14 {
+        return Ok(false);
     }
 
     Ok(true)
-}
-
-fn colour_count_is_valid(colour: &str, count: u32) -> bool {
-    match colour {
-        "red" if count <= 12 => true,
-        "green" if count <= 13 => true,
-        "blue" if count <= 14 => true,
-        _ => false
-    }
 }
 
 #[cfg(test)]
