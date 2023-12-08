@@ -61,6 +61,15 @@ impl Game {
         self.draws.iter().all(|d| d.red <= 12 && d.green <= 13 && d.blue <= 14 )
     }
 
+    pub fn power(self: &Self) -> u32 {
+        self.draws.iter().fold([0; 3], |mins, d| {
+            [std::cmp::max(mins[0], d.red),
+             std::cmp::max(mins[1], d.green),
+             std::cmp::max(mins[2], d.blue)]
+        }).iter()
+            .fold(1, |power, min| power * min)
+    }
+
     fn get_id_and_draws_str(s: &str) -> Result<(u32, &str), Error> {
         let id_start = s.find(" ").ok_or(Error::FailedToParseId)? + 1;
         let id_end = s.find(":").ok_or(Error::FailedToParseId)?;
@@ -84,6 +93,12 @@ impl Game {
 
 pub fn get_id_sum() -> Result<u32, Error> {
     get_id_sum_from_lines(&get_lines_from_file(Path::new("inputs/day2.txt"))?)
+}
+
+pub fn get_total_power() -> Result<u32, Error> {
+    Ok(games_from_lines(&get_lines_from_file(Path::new("inputs/day2.txt"))?)?.iter()
+        .map(|g| g.power())
+        .sum())
 }
 
 fn get_lines_from_file(path: &Path) -> Result<Vec<String>, Error> {

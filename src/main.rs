@@ -7,5 +7,8 @@ fn main() {
 
     let id_sum = day_2::get_id_sum();
     println!("Game ID sum: {:?}", id_sum);
+
+    let power = day_2::get_total_power();
+    println!("Total power: {:?}", power);
 }
 
