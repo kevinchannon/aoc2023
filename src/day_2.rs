@@ -62,12 +62,18 @@ impl Game {
     }
 
     pub fn power(self: &Self) -> u32 {
-        self.draws.iter().fold([0; 3], |mins, d| {
+        let accumulate_min_colour_values = |mins, d| {
             [std::cmp::max(mins[0], d.red),
-             std::cmp::max(mins[1], d.green),
-             std::cmp::max(mins[2], d.blue)]
-        }).iter()
-            .fold(1, |power, min| power * min)
+                std::cmp::max(mins[1], d.green),
+                std::cmp::max(mins[2], d.blue)]
+        };
+
+        let product = |prod, x| prod * x;
+
+        self.draws.iter()
+            .fold([0; 3], accumulate_min_colour_values)
+            .iter()
+            .fold(1, product)
     }
 
     fn get_id_and_draws_str(s: &str) -> Result<(u32, &str), Error> {
