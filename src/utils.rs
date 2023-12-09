@@ -11,7 +11,6 @@ pub enum Error {
 
     // Day 2
     FailedToParseId,
-    InvalidInputPaths,
     InvalidDraw,
 }
 
