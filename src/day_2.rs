@@ -1,12 +1,5 @@
-use std::fs::read_to_string;
 use std::path::Path;
-
-#[derive(PartialEq, Debug)]
-pub enum Error {
-    FailedToParseId,
-    InvalidInputPaths,
-    InvalidDraw
-}
+use crate::utils::{Error, get_lines_from_file};
 
 #[derive(PartialEq, Debug)]
 struct Draw {
@@ -105,14 +98,6 @@ pub fn get_total_power() -> Result<u32, Error> {
     Ok(games_from_lines(&get_lines_from_file(Path::new("inputs/day2.txt"))?)?.iter()
         .map(|g| g.power())
         .sum())
-}
-
-fn get_lines_from_file(path: &Path) -> Result<Vec<String>, Error> {
-    if let Ok(content) = read_to_string(path.to_str().ok_or(Error::InvalidInputPaths)?) {
-        return Ok(content.lines().map(String::from).collect());
-    }
-
-    Err(Error::InvalidInputPaths)
 }
 
 fn games_from_lines(lines: &Vec<String>) -> Result<Vec<Game>, Error> {

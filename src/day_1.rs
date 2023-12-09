@@ -1,11 +1,5 @@
-use std::fs::read_to_string;
 use std::path::Path;
-
-#[derive(PartialEq, Debug)]
-pub enum Error {
-    InvalidInputPaths,
-    ParseLineFailed
-}
+use crate::utils::{Error, get_lines_from_file};
 
 pub fn get_calibration_factor() -> Result<u32, Error> {
     get_lines_from_file(Path::new("inputs/day1.txt"))?
@@ -13,14 +7,6 @@ pub fn get_calibration_factor() -> Result<u32, Error> {
         .map(words_to_digit_chars)
         .map(int_from_line)
         .sum()
-}
-
-fn get_lines_from_file(path: &Path) -> Result<Vec<String>, Error> {
-    if let Ok(content) = read_to_string(path.to_str().ok_or(Error::InvalidInputPaths)?) {
-        return Ok(content.lines().map(String::from).collect());
-    }
-
-    Err(Error::InvalidInputPaths)
 }
 
 fn words_to_digit_chars(s: &String) -> String {
