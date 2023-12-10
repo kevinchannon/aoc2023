@@ -1,5 +1,5 @@
 use std::path::Path;
-use crate::utils::{Error, get_lines_from_file};
+use crate::utils::{AocError, get_lines_from_file};
 
 #[derive(PartialEq, Debug)]
 struct Draw {
@@ -9,7 +9,7 @@ struct Draw {
 }
 
 impl Draw {
-    pub fn from_string(s: &str) -> Result<Self, Error> {
+    pub fn from_string(s: &str) -> Result<Self, AocError> {
         let mut out = Self{red: 0, green: 0, blue: 0};
 
         for colour_count in s.trim().split(",") {
@@ -19,20 +19,20 @@ impl Draw {
                 "red"   => out.red   = count,
                 "green" => out.green = count,
                 "blue"  => out.blue  = count,
-                _ => return Err(Error::InvalidDraw)
+                _ => return Err(AocError::InvalidDraw)
             };
         }
 
         return Ok(out);
     }
 
-    fn parse_for_count_and_colour(s: &str) -> Result<(u32, &str), Error> {
+    fn parse_for_count_and_colour(s: &str) -> Result<(u32, &str), AocError> {
         let parts = s.trim().split(' ').collect::<Vec<&str>>();
         if parts.len() != 2 {
-            return Err(Error::InvalidDraw);
+            return Err(AocError::InvalidDraw);
         }
 
-        Ok((parts[0].parse::<u32>().or(Err(Error::InvalidDraw))?, parts[1]))
+        Ok((parts[0].parse::<u32>().or(Err(AocError::InvalidDraw))?, parts[1]))
     }
 }
 
@@ -43,7 +43,7 @@ struct Game {
 }
 
 impl Game {
-    pub fn from_string(s: &str) -> Result<Self, Error> {
+    pub fn from_string(s: &str) -> Result<Self, AocError> {
         let (id, draws) = Game::get_id_and_draws_str(s)?;
         let out = Game{id, draws: Game::parse_draws(draws)?};
 
@@ -69,18 +69,18 @@ impl Game {
             .fold(1, product)
     }
 
-    fn get_id_and_draws_str(s: &str) -> Result<(u32, &str), Error> {
-        let id_start = s.find(" ").ok_or(Error::FailedToParseId)? + 1;
-        let id_end = s.find(":").ok_or(Error::FailedToParseId)?;
+    fn get_id_and_draws_str(s: &str) -> Result<(u32, &str), AocError> {
+        let id_start = s.find(" ").ok_or(AocError::FailedToParseId)? + 1;
+        let id_end = s.find(":").ok_or(AocError::FailedToParseId)?;
 
         if let Ok(id) = s[id_start..id_end].parse::<u32>() {
             return Ok((id, &s[id_end + 1..]));
         }
 
-        Err(Error::FailedToParseId)
+        Err(AocError::FailedToParseId)
     }
 
-    fn parse_draws(s: &str) -> Result<Vec<Draw>, Error> {
+    fn parse_draws(s: &str) -> Result<Vec<Draw>, AocError> {
         let mut out = Vec::<Draw>::new();
         for draw_str in s.split(";") {
             out.push(Draw::from_string(draw_str)?);
@@ -90,23 +90,23 @@ impl Game {
     }
 }
 
-pub fn get_id_sum() -> Result<u32, Error> {
+pub fn get_id_sum() -> Result<u32, AocError> {
     get_id_sum_from_lines(&get_lines_from_file(Path::new("inputs/day2.txt"))?)
 }
 
-pub fn get_total_power() -> Result<u32, Error> {
+pub fn get_total_power() -> Result<u32, AocError> {
     Ok(games_from_lines(&get_lines_from_file(Path::new("inputs/day2.txt"))?)?.iter()
         .map(|g| g.power())
         .sum())
 }
 
-fn games_from_lines(lines: &Vec<String>) -> Result<Vec<Game>, Error> {
+fn games_from_lines(lines: &Vec<String>) -> Result<Vec<Game>, AocError> {
     lines.iter()
         .map( |l| { Game::from_string(l.as_str())})
         .collect()
 }
 
-fn get_id_sum_from_lines(lines: &Vec<String>) -> Result<u32, Error> {
+fn get_id_sum_from_lines(lines: &Vec<String>) -> Result<u32, AocError> {
     Ok(games_from_lines(lines)?.iter()
         .filter(|g| g.is_possible() )
         .map(|g| g.id)
@@ -137,22 +137,22 @@ mod tests {
 
     #[test]
     fn create_draw_from_string_fails_for_invalid_colour() {
-        assert_eq!(Err(Error::InvalidDraw), Draw::from_string(" 2 green, 3 yellow, 1 red"));
+        assert_eq!(Err(AocError::InvalidDraw), Draw::from_string(" 2 green, 3 yellow, 1 red"));
     }
 
     #[test]
     fn create_draw_from_string_fails_for_invalid_value() {
-        assert_eq!(Err(Error::InvalidDraw), Draw::from_string(" 2 green, 3 blue, ? red"));
+        assert_eq!(Err(AocError::InvalidDraw), Draw::from_string(" 2 green, 3 blue, ? red"));
     }
 
     #[test]
     fn create_draw_from_string_fails_if_there_are_too_few_parts() {
-        assert_eq!(Err(Error::InvalidDraw), Draw::from_string(" 2 , 3 yellow, 1 red"));
+        assert_eq!(Err(AocError::InvalidDraw), Draw::from_string(" 2 , 3 yellow, 1 red"));
     }
 
     #[test]
     fn create_draw_from_string_fails_if_there_are_too_many_parts() {
-        assert_eq!(Err(Error::InvalidDraw), Draw::from_string(" 2 green X, 3 yellow, 1 red"));
+        assert_eq!(Err(AocError::InvalidDraw), Draw::from_string(" 2 green X, 3 yellow, 1 red"));
     }
 
     #[test]
@@ -163,12 +163,12 @@ mod tests {
 
     #[test]
     fn create_game_from_string_fails_if_id_is_bad() {
-        assert_eq!(Err(Error::FailedToParseId), Game::from_string("Game ?: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green"));
+        assert_eq!(Err(AocError::FailedToParseId), Game::from_string("Game ?: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green"));
     }
 
     #[test]
     fn create_game_from_string_fails_if_draws_are_bad() {
-        assert_eq!(Err(Error::InvalidDraw), Game::from_string("Game 2: wibble"));
+        assert_eq!(Err(AocError::InvalidDraw), Game::from_string("Game 2: wibble"));
     }
 
     #[test]
@@ -196,7 +196,7 @@ mod tests {
         ];
 
         let games = games_from_lines(&lines);
-        assert_eq!(Err(Error::InvalidDraw), games);
+        assert_eq!(Err(AocError::InvalidDraw), games);
     }
 
     #[test]

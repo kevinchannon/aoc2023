@@ -1,7 +1,7 @@
 use std::path::Path;
-use crate::utils::{Error, get_lines_from_file};
+use crate::utils::{AocError, get_lines_from_file};
 
-pub fn get_calibration_factor() -> Result<u32, Error> {
+pub fn get_calibration_factor() -> Result<u32, AocError> {
     get_lines_from_file(Path::new("inputs/day1.txt"))?
         .iter()
         .map(words_to_digit_chars)
@@ -30,15 +30,15 @@ fn words_to_digit_chars(s: &String) -> String {
     out
 }
 
-fn int_from_line(line: String) -> Result<u32, Error> {
+fn int_from_line(line: String) -> Result<u32, AocError> {
     let ten = line.chars()
         .find(|c| c.is_digit(10))
-        .ok_or(Error::ParseLineFailed)?
+        .ok_or(AocError::ParseLineFailed)?
         .to_digit(10)
         .expect("We only selected base-10 digits in the find, so we shouldn't ever get here");
     let unit = line.chars()
         .rfind(|c| c.is_digit(10))
-        .ok_or(Error::ParseLineFailed)?
+        .ok_or(AocError::ParseLineFailed)?
         .to_digit(10)
         .expect("We only selected base-10 digits in the find, so we shouldn't ever get here");
 
@@ -76,7 +76,7 @@ mod tests {
 
     #[test]
     fn int_from_line_fails_with_invalid_parse_error_when_there_are_no_numbers() {
-        assert_eq!(Err(Error::ParseLineFailed), int_from_line(String::from("a")));
+        assert_eq!(Err(AocError::ParseLineFailed), int_from_line(String::from("a")));
     }
 
     #[test]
